@@ -1,0 +1,62 @@
+﻿@model TaskList.WEB.Models.TaskListViewModel
+
+<div class="modal-content" style="width: 550px;">
+    <div class="modal-header">
+        <h4>Set time</h4>
+        <button class="close" data-dismiss="modal" area-hidden="true">X</button>
+    </div>
+    <div class="modal-body">
+            <div class="row">
+                <div class="col-md-3">
+                    <h5>Ticket</h5>
+                </div>
+                <div class="col-md-9">
+                    @Html.Label("Ticket", @ViewData["Ticket"].ToString(), new { @id = "Ticket", @name = "Ticket" })
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-md-3 mt-1">
+                    <h5>Finish time:</h5>
+                </div>
+                <div class="col-md-9 mt-1">
+                    <div class="form-group">
+                        <div class="input-group date" id="finishTimePicker">
+                            <input type="text" class="form-control" id="finishTimeInput" />
+                            <span class="input-group-addon" style="width:40px;">
+                                <span class="fa fa-calendar" style="margin-top: 10px; margin-left: 10px;"></span>
+                            </span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="mt-1">
+                <button id="saveFinishTimeButton" type="button" class="btn btn-secondary col-md-3 offset-md-9">Save</button>
+            </div>
+    </div>
+</div>
+
+<script>
+    $(document).ready(function () {
+        $('#finishTimePicker').datetimepicker(datatimepickerValues);
+        $('#saveFinishTimeButton').click(function () {
+            
+            var finishTime = $('#finishTimePicker').find("input").val();
+            var values = {
+                "Id": "@Model.Id.ToString()",
+                "CreateTime": "@Model.CreateTime.ToString("dd/MM/yyyy HH:mm")",
+                "StartDate": "@Model.StartDate.ToString("dd/MM/yyyy HH:mm")",
+                "CancelDate": finishTime,
+                "TaskId": "@Model.TaskId.ToString()"
+            };
+            $.ajax({
+                url: '@Url.Action("SaveFinishTime")',
+                type: 'POST',
+                cache: false,
+                data: { taskListVm: values }
+            }).done(function () {
+                $('#modDialog3').modal('hide');
+                $('.select').change();
+            });
+        });
+    });
+</script>

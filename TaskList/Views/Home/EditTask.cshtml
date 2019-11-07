@@ -1,0 +1,62 @@
+﻿@model TaskList.WEB.Models.TaskViewModel
+
+<div class="modal-content" style="width: 500px;">
+    <div class="modal-header">
+        <h4>Ticket #@Model.Id</h4>
+        <button class="close" data-dismiss="modal" area-hidden="true">X</button>
+    </div>
+    <div class="modal-body">
+        <form action="/Home/SaveTask" data-ajax="true"  id="modelRedactForm" method="post" name="modelRedactForm">
+            <div class="row">
+                <div class="col-md-4">
+                    <h5>Ticket:</h5>
+                </div>
+                <div class="col-md-8">
+                    @Html.TextBox("Ticket", Model.Ticket, new { @style = "width: 300px; ", @id = "Ticket", @name = "Ticket" })
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-md-4 mt-1">
+                    <h5>Description:</h5>
+                </div>
+                <div class="col-md-8 mt-1">
+                    @Html.TextBox("Description", Model.Description, new { @style = "width: 300px;", @id = "Description", @name = "Description" })
+                </div>
+            </div>
+            <div class="mt-1">
+                <button id="saveButton" type="button" class="btn btn-secondary col-md-3 offset-md-9">Save</button>
+            </div>
+        </form>
+</div>
+</div>
+
+<script>
+    $(document).ready(function () {
+        $('#saveButton').click(function () {
+            var ticket = document.getElementById("Ticket");
+            if (ticket.value != "") {
+                    var values = {
+                        "Id": @Model.Id.ToString(),
+                        "Ticket": ticket.value,
+                        "Description": document.getElementById("Description").value,
+                        "ProjectId": @Model.ProjectId.ToString(),
+                        "CreateDate": "@Model.CreateDate.ToString()",
+                        "StartDate": "@Model.StartDate.ToString()"
+                    };
+                    $.ajax({
+                        url: '@Url.Action("SaveTask")',
+                        type: 'POST',
+                        cache: false,
+                        data: { taskVm: values }
+                    }).done(function () {
+                        $('#modDialog').modal('hide');
+                        $('.select').change();
+                    });
+                }
+            }
+            else {
+                ticket.style.border = "solid 1px red";
+            }
+        })
+    });
+</script>

@@ -1,0 +1,59 @@
+﻿@model TaskList.WEB.Models.TaskListViewModel
+
+<div class="modal-content" style="width: 550px;">
+    <div class="modal-header">
+        <h4>Set time</h4>
+        <button class="close" data-dismiss="modal" area-hidden="true">X</button>
+    </div>
+    <div class="modal-body">
+            <div class="row">
+                <div class="col-md-3">
+                    <h5>Ticket</h5>
+                </div>
+                <div class="col-md-9">
+                    @Html.Label("Ticket", @ViewData["Ticket"].ToString(), new { @id = "Ticket", @name = "Ticket" })
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-md-3 mt-1">
+                    <h5>Start time:</h5>
+                </div>
+                <div class="col-md-9 mt-1">
+                    <div class="form-group">
+                        <div class="input-group date" id="startTimePicker">
+                            <input type="text" class="form-control" id="startTimeInput" />
+                            <span class="input-group-addon" style="width:40px;">
+                                <span class="fa fa-calendar" style="margin-top: 10px; margin-left: 10px;"></span>
+                            </span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="mt-1">
+                <button id="saveTimeButton" type="button" class="btn btn-secondary col-md-3 offset-md-9">Save</button>
+            </div>
+    </div>
+</div>
+
+<script> 
+    $(document).ready(function () {
+        $('#startTimePicker').datetimepicker(datatimepickerValues);
+        $('#saveTimeButton').click(function () {
+            var startTime = $('#startTimePicker').find("input").val();
+            var values = {
+                "CreateTime": startTime,
+                "StartDate": startTime,
+                "TaskId" : "@Model.TaskId.ToString()"
+            };
+            $.ajax({
+                url: '@Url.Action("SaveStartTime")',
+                type: 'POST',
+                cache: false,
+                data: { taskListVm: values }
+            }).done(function () {
+                $('#modDialog2').modal('hide');
+                $('.select').change();
+            });
+        })
+    });
+</script>

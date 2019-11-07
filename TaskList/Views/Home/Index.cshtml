@@ -1,0 +1,184 @@
+﻿@model IEnumerable<TaskList.WEB.Models.ProjectViewModel>
+
+@{
+    ViewData["Title"] = "Project Tasks";
+}
+<!DOCTYPE html>
+<html>
+<head>
+    <script src="Microsoft.jQuery.Unobtrusive.Ajax/jquery.unobtrusive-ajax.min.js"></script>
+    <script src="~/scripts/jquery-3.4.1.min.js"></script>
+    <script type="text/javascript" src="~/scripts/bootstrap.min.js"></script>
+    <script type="text/javascript" src="~/scripts/DataTables/jquery.dataTables.js"></script>
+    <link rel="stylesheet" href="~/styles/bootstrap.min.css" />
+    <link rel="stylesheet" href="~/styles/DataTables/css/jquery.dataTables.css" />
+
+    <script type="text/javascript" src="~/scripts/moment.min.js"></script>
+    <script type="text/javascript" src="~/scripts/bootstrap.min.js"></script>
+    <script type="text/javascript" src="~/scripts/bootstrap-datetimepicker.min.js"></script>
+
+    <link rel="stylesheet" href="~/styles/bootstrap-datetimepicker.min.css" />
+    <link rel="stylesheet" href="~styles/font-awesome.min.css">
+    <script src="https://use.fontawesome.com/556d1df76c.js"></script>
+
+</head>
+<body>
+    <div class="container">
+
+        <div class="row">
+            <div id="modDialog" class="modal fade">
+                <div id="dialogContent" class="modal-dialog"></div>
+            </div>
+        </div>
+
+        <div class="row">
+            <div id="modDialog2" class="modal fade">
+                <div id="dialogContent2" class="modal-dialog"></div>
+            </div>
+        </div>
+
+        <div class="row">
+            <div id="modDialog3" class="modal fade">
+                <div id="dialogContent3" class="modal-dialog"></div>
+            </div>
+        </div>
+
+        <div class="row">
+            <div id="header" class="col-md-4">
+                <h2>Project tasks</h2>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-md-12">
+                <form asp-controller="Home" asp-action="ShowTasks" data-ajax="true" data-ajax-method="GET" class="col-md-12">
+                    <div class="row">
+                        <div class="col-md-1">Project: </div>
+                        <div class="col-md-4">
+                            @Html.DropDownList("projects", new SelectList(Model, "Id", "Name", 1), new { @class = "select" })
+                        </div>
+                        </div>
+                    <div class="row">
+                        <div id="taskTable" class="col-md-12"></div>
+                    </div>
+                    <div class="row">
+                        <div id="totalTime" class="col-md-3 offset-md-9"></div>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+
+    <script type="text/javascript">
+        var datatimepickerValues = {
+            inline: true,
+            sideBySide: true,
+            format: 'DD.MM.YYYY HH:mm',
+            icons:
+            {
+                time: 'fa fa-clock',
+                date: 'fa fa-calendar',
+                up: 'fa fa-arrow-up',
+                down: 'fa fa-arrow-down',
+                previous: 'fa fa-arrow-circle-left',
+                next: 'fa fa-arrow-circle-right',
+                today: 'fa fa-calendar-check-o',
+                clear: 'fa fa-trash',
+                close: 'fa fa-times'
+            }
+        };
+        
+        var selectChanged = function () {
+            $('.select').change(function () {
+                var id = this.value;
+                $.ajax({
+                    url: '@Url.Action("ShowTasks")',
+                    type: 'GET',
+                    cache: false,
+                    data: { projectId: id }
+                }).done(function (result) {
+                    $('#taskTable').html(result);
+                });
+                $.ajax({
+                    url: '@Url.Action("GetTotalTime")',
+                    type: 'GET',
+                    cache: false,
+                    data: { projectId: id }
+                }).done(function (result) {
+                    $('#totalTime').html(result);
+                });
+            })
+        };
+
+        $(document).ready(selectChanged());
+
+        window.onload = function () {
+            $('.select').change();
+        };
+
+        var onEditButtonClick = function (obj) {
+            var id = obj.substring(11);
+            $.ajax({
+                url: '@Url.Action("EditTask")',
+                type: 'GET',
+                cache: false,
+                data: { taskId: id }
+            }).done(function (result) {
+                $('#dialogContent').html(result);
+            });
+            $('#modDialog').modal('show');
+        };
+
+        var onAddNewTaskButtonClick = function () {
+            var projectId = $('.select').val();
+            $.ajax({
+                url: '@Url.Action("AddTask")',
+                type: 'GET',
+                cache: false,
+                data: { projectId: projectId }
+            }).done(function (result) {
+                $('#dialogContent').html(result);
+            });
+            $('#modDialog').modal('show');
+        };
+
+        var onSetStartTimeButtonClick = function (obj) {
+            var id = obj.substring(19);
+            $.ajax({
+                url: '@Url.Action("SetStartTime")',
+                type: 'GET',
+                cache: false,
+                data: { taskId: id }
+            }).done(function (result) {
+                $('#dialogContent2').html(result);
+            });
+            $('#modDialog2').modal('show');
+        };
+
+        var onSetFinishTimeButtonClick = function (obj) {
+            var id = obj.substring(20);
+            $.ajax({
+                url: '@Url.Action("SetFinishTime")',
+                type: 'GET',
+                cache: false,
+                data: { taskId: id }
+            }).done(function (result) {
+                $('#dialogContent3').html(result);
+            });
+            $('#modDialog3').modal('show');
+        };
+
+        var onDeleteTaskButtonClick = function (obj) {
+            var id = obj.substring(17);
+            $.ajax({
+                url: '@Url.Action("DeleteTask")',
+                type: 'POST',
+                cache: false,
+                data: { taskId: id }
+            }).done(function () {
+                $('.select').change();
+            });
+        };
+    </script>
+</body>
+</html>
